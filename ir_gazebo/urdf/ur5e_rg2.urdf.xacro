@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<robot name="rilab_robot" xmlns:xacro="http://wiki.ros.org/xacro">
+  <xacro:arg name="transmission_hw_interface" default="hardware_interface/PositionJointInterface"/>
+
+  <!-- ur5e --> 
+  <xacro:include filename="$(find ur_e_description)/urdf/ur5e.urdf.xacro" />
+  <xacro:ur5e_robot prefix="" joint_limited="true"
+    shoulder_pan_lower_limit="${-pi}" shoulder_pan_upper_limit="${pi}"
+    shoulder_lift_lower_limit="${-pi}" shoulder_lift_upper_limit="${pi}"
+    elbow_joint_lower_limit="${-pi}" elbow_joint_upper_limit="${pi}"
+    wrist_1_lower_limit="${-pi}" wrist_1_upper_limit="${pi}"
+    wrist_2_lower_limit="${-pi}" wrist_2_upper_limit="${pi}"
+    wrist_3_lower_limit="${-pi}" wrist_3_upper_limit="${pi}"
+  />
+
+  <!--onrobot_rg2_gripper-->
+  <xacro:include filename="$(find ir_gazebo)/urdf/onrobot_rg2_gripper.urdf.xacro" />
+
+   <!-- workstation-->
+  <xacro:include filename="$(find ir_gazebo)/urdf/workstation.urdf.xacro" />
+
+   <!-- workspace-->
+  <xacro:include filename="$(find ir_gazebo)/urdf/table.urdf.xacro" />
+
+   <!--onrobot_rg2_gripper  -->
+  <xacro:onrobot_rg2_gripper prefix="" parent="tool0">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </xacro:onrobot_rg2_gripper>
+
+  <!-- attach table to workstation -->
+  <joint name="robot_workstation_joint" type="fixed">
+    <parent link="workstation_link" />
+    <child link = "base_link" />
+    <origin xyz="0.0 0.0 0.375" rpy="0.0 0.0 0.0" />
+  </joint>
+
+ 
+  <joint name="world_joint" type="fixed">
+    <parent link="world" />
+    <child link = "table_base_link" />
+    <origin xyz="0.8 0.0 0.0" rpy="0.0 0.0 0.0" />
+  </joint>
+
+  <gazebo>
+    <plugin name="ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/</robotNamespace>
+    </plugin> 
+  </gazebo>
+
+
+</robot>
+
