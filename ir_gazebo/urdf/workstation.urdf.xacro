@@ -6,14 +6,14 @@
   <link name="workstation_link">
     <visual>
       <geometry>
-	      <box size="0.3 1.5 0.75"/>
+	      <box size="0.76 0.72 0.79"/>
 	    </geometry>
-      <material name="white"/>
+      <material name="white_workstation"/>
     </visual>
     <collision>
-       <geometry>
-	   <box size="0.3 1.5 0.75"/>
-	</geometry>
+      <geometry>
+	      <box size="0.76 0.72 0.79"/>
+	    </geometry>
     </collision>
     <inertial>
     	<mass value="50"/>
@@ -32,6 +32,6 @@
   <joint name="workstation_joint" type="fixed">
     <parent link="world" />
     <child link = "workstation_link" />
-    <origin xyz="0. 0. 0.375" rpy="0.0 0.0 0.0" />
+    <origin xyz="0. 0. 0.395" rpy="0.0 0.0 0.0" />
   </joint>
 </robot>

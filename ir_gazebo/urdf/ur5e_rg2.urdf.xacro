@@ -31,14 +31,14 @@
   <joint name="robot_workstation_joint" type="fixed">
     <parent link="workstation_link" />
     <child link = "base_link" />
-    <origin xyz="0.0 0.0 0.375" rpy="0.0 0.0 0.0" />
+    <origin xyz="0.18 0.0 0.395" rpy="0.0 0.0 0.0" />
   </joint>
 
  
   <joint name="world_joint" type="fixed">
     <parent link="world" />
     <child link = "table_base_link" />
-    <origin xyz="0.8 0.0 0.0" rpy="0.0 0.0 0.0" />
+    <origin xyz="1.2 0.0 0.0" rpy="0.0 0.0 0.0" />
   </joint>
 
   <gazebo>
