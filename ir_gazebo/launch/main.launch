@@ -17,6 +17,15 @@
   <include file="$(find ir_gazebo)/launch/spawn_robot.launch">
   </include>
 
+  <include file="$(find ir_moveit_config)/launch/move_group.launch">
+    <arg name="debug" default="$(arg debug)" />
+  </include>
+
+  <include file="$(find ir_moveit_config)/launch/moveit_rviz.launch">
+    <arg name="debug" default="$(arg debug)" />
+    <arg name="rviz_config" default="true" />
+  </include>
+
 </launch>
 
 
@@ -25,9 +34,7 @@
   <node pkg ="ril_tamp_python" type="object_pos_checker.py" name="objec_pos"></node>
   <node pkg ="ril_tamp_python" type="object_spawn.py" name="objects"></node>
   
-  <include file="$(find ril_yet_moveit_config)/launch/move_group.launch">
-    <arg name="debug" default="$(arg debug)" />
-  </include>
+
 -->
 
 <!--
