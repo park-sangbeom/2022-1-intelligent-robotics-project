@@ -3,7 +3,7 @@
   <xacro:arg name="transmission_hw_interface" default="hardware_interface/PositionJointInterface"/>
 
   <!-- ur5e --> 
-  <xacro:include filename="$(find ur_e_description)/urdf/ur5e.urdf.xacro" />
+  <xacro:include filename="$(find ir_gazebo)/urdf/ur5e/ur5e.urdf.xacro" />
   <xacro:ur5e_robot prefix="" joint_limited="true"
     shoulder_pan_lower_limit="${-pi}" shoulder_pan_upper_limit="${pi}"
     shoulder_lift_lower_limit="${-pi}" shoulder_lift_upper_limit="${pi}"
@@ -14,7 +14,7 @@
   />
 
   <!--onrobot_rg2_gripper-->
-  <xacro:include filename="$(find ir_gazebo)/urdf/onrobot_rg2_gripper.urdf.xacro" />
+  <xacro:include filename="$(find ir_gazebo)/urdf/rg2/onrobot_rg2_gripper.urdf.xacro" />
 
    <!-- workstation-->
   <xacro:include filename="$(find ir_gazebo)/urdf/workstation.urdf.xacro" />
