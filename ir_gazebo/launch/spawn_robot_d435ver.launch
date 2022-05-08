@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  <arg name="robot_namespace" default="/"/>
+  <arg name="x" default="0.0"/>
+  <arg name="y" default="0.0"/>
+  <arg name="z" default="0.0"/>
+  <arg name="yaw" default="0.0"/>
+
+
+  <include file="$(find ir_gazebo)/launch/description_d435ver.launch" >
+    <arg name="robot_namespace" value="$(arg robot_namespace)"/>
+  </include>
+
+  <!-- For single master bringup, run robot control on the gazebo master -->
+
+  <include file="$(find ir_gazebo)/launch/control.launch">
+  </include>
+
+  
+  <!-- Spawn robot in gazebo -->
+  <node name="spawn_tamp_model" pkg="gazebo_ros" type="spawn_model"
+        args="-x $(arg x)
+              -y $(arg y)
+              -z $(arg z)
+              -Y $(arg yaw)
+              -unpause
+              -urdf
+              -param robot_description
+              -model $(arg robot_namespace)" />
+
+</launch>
