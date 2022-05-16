@@ -1,0 +1,11 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: ir_gazebo
+    relative_path: urdf/ur5e_rg2_d435.urdf.xacro
+    xacro_args: ""
+  SRDF:
+    relative_path: config/rilab_robot.srdf
+  CONFIG:
+    author_name: Sangbeom Park
+    author_email: psb5657@korea.ac.kr
+    generated_timestamp: 1652698047

@@ -17,14 +17,14 @@
   <include file="$(find ir_gazebo)/launch/spawn_robot_d435ver.launch">
   </include>
 
-  <!-- <include file="$(find ir_moveit_config)/launch/move_group.launch">
+  <include file="$(find ir_camera_moveit_config)/launch/move_group.launch">
     <arg name="debug" default="$(arg debug)" />
   </include>
 
-  <include file="$(find ir_moveit_config)/launch/moveit_rviz.launch">
+  <include file="$(find ir_camera_moveit_config)/launch/moveit_rviz.launch">
     <arg name="debug" default="$(arg debug)" />
     <arg name="rviz_config" default="true" />
-  </include> -->
+  </include>
 
 </launch>
 
