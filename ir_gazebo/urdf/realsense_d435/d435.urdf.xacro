@@ -140,8 +140,8 @@ aluminum peripherial evaluation case.
 
     <!-- Realsense Gazebo Plugin --> <!-- FIXED IT FOR SPAWNING MULTCAMERA ON GAZEBO ENV-->
     <xacro:gazebo_d435 camera_name="${name}" reference_link="${name}_link" topics_ns="${topics_ns}" 
-    depth_optical_frame="${topics_ns}_depth_optical_frame" color_optical_frame="${topics_ns}_color_optical_frame" 
-    infrared1_optical_frame="${topics_ns}_left_ir_optical_frame" infrared2_optical_frame="${topics_ns}_right_ir_optical_frame" 
+    depth_optical_frame="${name}_depth_optical_frame" color_optical_frame="${name}_color_optical_frame" 
+    infrared1_optical_frame="${name}_left_ir_optical_frame" infrared2_optical_frame="${name}_right_ir_optical_frame" 
     publish_pointcloud="${publish_pointcloud}"/>
 
   </xacro:macro>
