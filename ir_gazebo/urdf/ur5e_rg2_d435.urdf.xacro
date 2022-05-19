@@ -55,6 +55,8 @@
     </plugin> 
   </gazebo>
 
+  <xacro:include filename="$(find ir_gazebo)/urdf/gzplugin_grasp_fix.urdf.xacro"/>
+  <xacro:gzplugin_grasp_fix/>
 
 </robot>
 
