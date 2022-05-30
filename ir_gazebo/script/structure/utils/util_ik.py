@@ -1,6 +1,25 @@
 import math 
 import numpy as np
 
+def make_ik_input(target_name=["base_joint"], 
+                  target_pos=[[0, 0, 0]], 
+                  target_rot=[[0, 0, 0]], 
+                  solve_pos=[1], 
+                  solve_rot=[1], 
+                  weight_pos=1, 
+                  weight_rot=0, 
+                  disabled_joi_id=[], 
+                  joi_ctrl_num=7):
+    return {"target_joint_name":target_name, 
+            "target_joint_position":target_pos,
+            "target_joint_rotation":target_rot,
+            "solve_position":solve_pos,
+            "solve_rotation":solve_rot,
+            "position_weight":weight_pos,
+            "rotation_weight":weight_rot,
+            "disabled_joi_id":disabled_joi_id, 
+            "joint_ctrl_num":joi_ctrl_num}
+
 def get_aug_ik_ingredients(robot_jc, variables):
     # Set variables
     joint_name_trgt   = variables['target_joint_name']
@@ -229,7 +248,7 @@ def rodrigues(a, q):
         th = norm_a*q
         a_hat = np.array([[0,  -a[2], a[1]],
                           [a[2],  0, -a[0]],
-                          [-a[1], a[0], 0]])
+                          [-a[1], a[0], 0]], dtype=object)
         R = np.eye(3) + a_hat * np.sin(th) + np.linalg.matrix_power(a_hat, 2) * (1-np.cos(th))
     return R 
 

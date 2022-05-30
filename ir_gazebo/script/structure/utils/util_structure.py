@@ -1,6 +1,6 @@
 import numpy as np 
-from util_fk import *
-from util_ik import * 
+from utils.util_fk import *
+from utils.util_ik import * 
 
 def update_q_chain(robot_jc, q_list, ctrl_joint):
     for idx in range(len(robot_jc)):
@@ -150,3 +150,13 @@ def get_rev_joi_chain(robot_jc, ctrl_num):
         if robot_jc[idx].type == 'revolute' and idx <=ctrl_num: # This is essenstial condition, to remove gripper joint in IK slover
             revolute_type.append(robot_jc[idx].id)
     return revolute_type 
+
+def get_cap_fcl_ingredients(name_list, link_p_list, rpy_list, height_list, radius_list): 
+    fcl_links = [{"name":name, 
+                  "type":"capsule", 
+                  "position":[link_p[0], link_p[1], link_p[2]], 
+                  "orientation":[rpy[0], rpy[1], rpy[2]],
+                  "size":[height, radius]} 
+                for name, link_p, rpy, height, radius in zip(name_list, link_p_list, rpy_list, height_list, radius_list)]
+    return fcl_links
+### Capsule ### 

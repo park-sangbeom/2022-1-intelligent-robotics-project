@@ -1,10 +1,11 @@
 from collections import defaultdict
 import xml.etree.ElementTree as ET
 import copy
+from utils.util_ik import column_v
 
-class Parser():
-    def __init__(self, _file_name):
-        # UR5e, Panda  
+class PARSER():
+    def __init__(self, _file_name="ir_gazebo/script/structure/ur5e_onrobot.urdf"):
+        # UR5e  
         self.file_name = _file_name 
         # parse xml file
         self.doc = ET.parse(self.file_name)
@@ -87,7 +88,7 @@ class Parser():
         self.joint_dict["rpy"] = '0 0 0'
         self.joint_dict["xyz"] = '0 0 0'
         self.joint_dict['axis'] = '0 0 1' #Glboal Configuration: Z axis default
-        self.joint_dict["p_offset"] = 1 
+        self.joint_dict["p_offset"] = column_v(0.18, 0, 0.25)
         base_joint_dict = self.joint_dict.copy()
         self.joint.insert(0, base_joint_dict) 
         
@@ -123,7 +124,7 @@ class Parser():
 
 if __name__ == "__main__": 
     file_name = "urdf/ur5e_onrobot.urdf"
-    parser = Parser(file_name)
+    parser = PARSER(file_name)
     for i in parser.link:
         print("link",i)
     for i in parser.joint:
