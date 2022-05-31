@@ -1,10 +1,10 @@
 from collections import defaultdict
 import xml.etree.ElementTree as ET
 import copy
-from utils.util_ik import column_v
+from util_ik import column_v
 
 class PARSER():
-    def __init__(self, _file_name="ir_gazebo/script/structure/ur5e_onrobot.urdf"):
+    def __init__(self, _file_name="/ur5e_onrobot.urdf"): #ir_gazebo/script/structure/ur5e_onrobot.urdf
         # UR5e  
         self.file_name = _file_name 
         # parse xml file

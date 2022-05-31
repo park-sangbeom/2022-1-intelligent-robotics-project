@@ -14,7 +14,7 @@ from sensor_msgs.msg import JointState
 from math import pi
 import time 
 
-robot       = ROBOT
+robot       = ROBOT()
 client      = None
 JOINT_NAMES = ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint',
                'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
@@ -52,6 +52,8 @@ def homepose():
 
 def real_move(joint_list):
     print("Check")
+    print("joint_list", joint_list)
+    print("joint_list shape", joint_list.shape)
     for i, q in enumerate(joint_list):
         if i==0:
             g = FollowJointTrajectoryGoal()
@@ -62,6 +64,7 @@ def real_move(joint_list):
                 JointTrajectoryPoint(positions=q, velocities=[0]*6, time_from_start=rospy.Duration(3))]  
             d=3
         else:
+            print("q", q.shape, "prev_q", prev_q.shape)
             vel = (q-prev_q)/5 # TODO: CHECK TIME
             g.trajectory.points.append(
                 JointTrajectoryPoint(positions=q, velocities=vel,time_from_start=rospy.Duration(d))) 
@@ -82,15 +85,16 @@ def main():
         client.wait_for_server()
         print("Connected to server")
         print("Please make sure that your robot can move freely between these poses before proceeding!")
-        inp = input("Continue? y/n: ")
+        inp = raw_input("Continue? y/n: ")[0]
+        print("inp", inp)
         if (inp == 'y'):
             s = time.clock()
-            homepose()
+            # prepose()
             q_list_forward  = robot.waypoint_plan(np.array([0.6, 0, 0.85]), np.array([0.9, 0, 0.85]), 5)
-            real_move(q_list_forward)
+            # real_move(q_list_forward)
             time.sleep(1)
-            q_list_backward = robot.waypoint_plan(np.array([0.9, 0, 0.85]), np.array([0.6, 0, 0.85]), 5)
-            real_move(q_list_backward)
+            # q_list_backward = robot.waypoint_plan(np.array([0.9, 0, 0.85]), np.array([0.6, 0, 0.85]), 5)
+            # real_move(q_list_backward)
             print("finished")
             print(time.clock()-s)
 

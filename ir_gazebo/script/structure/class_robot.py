@@ -7,7 +7,7 @@ from utils.util_parser import PARSER
 from class_fcl import PyFCL
 
 class ROBOT: 
-    def __init__(self, _file_name="ir_gazebo/script/structure/ur5e_onrobot.urdf"):
+    def __init__(self, _file_name="structure/ur5e_onrobot.urdf"): #ir_gazebo/script/structure/ur5e_onrobot.urdf
         self.chain  = CHAIN(_file_name)
         self.parser = PARSER(_file_name)
         self.fcl    = PyFCL(_verbose=False)
@@ -25,7 +25,9 @@ class ROBOT:
             finger_point = wrist_point + offset
             if ((num) == (num_interpol-1)):
                 q_list = self.chain.get_q_from_ik(variable) 
-                total_q_list.append(q_list)
+                control_q_list = q_list[1:7]
+                reshaped_q = control_q_list.reshape([6,])
+                total_q_list.append(reshaped_q) # Get manipulator joints 
                 break 
             else: 
                 variable = make_ik_input(target_name = ['wrist_3_joint', 'gripper_finger1_finger_tip_joint'],
@@ -38,7 +40,9 @@ class ROBOT:
                                          disabled_joi_id = [],
                                          joi_ctrl_num=7)             
                 q_list = self.chain.get_q_from_ik(variable)
-                total_q_list.append(q_list[:6]) # Get manipulator joints 
+                control_q_list = q_list[1:7]
+                reshaped_q = control_q_list.reshape([6,])
+                total_q_list.append(reshaped_q) # Get manipulator joints 
         desired_time = get_desired_time(start_pos, target_pos, desired_vel=0.2)
         interpoled_q = q_interpolation(total_q_list, desired_time, num_interpol)
         return interpoled_q 
