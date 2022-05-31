@@ -8,7 +8,7 @@ from utils.util_parser import PARSER
 from class_fcl import PyFCL
 
 class ROBOT: 
-    def __init__(self, _file_name="ir_gazebo/script/structure/ur5e_onrobot.urdf"): #structure/ur5e_onrobot.urdf
+    def __init__(self, _file_name="structure/ur5e_onrobot.urdf"): #ir_gazebo/script/structure/ur5e_onrobot.urdf
         self.chain  = CHAIN(_file_name)
         self.parser = PARSER(_file_name)
         self.fcl    = PyFCL(_verbose=False)

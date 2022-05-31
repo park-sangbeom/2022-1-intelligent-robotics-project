@@ -1,6 +1,6 @@
 import numpy as np
-from utils.util_fk import *
-from utils.util_ik import * 
+from util_fk import *
+from util_ik import * 
 
 def update_q_chain(robot_jc, q_list, ctrl_joint):
     for idx in range(len(robot_jc)):
@@ -139,11 +139,11 @@ def q_interpolation(joint_val_seq, desired_time, num_interpol):
                 break 
             if i == 0:
                 pre_q, after_q = joint_seq[idx][i:i+2]
-                new_first_q    = np.linspace(pre_q, after_q, int(freq*(desired_time)))
+                new_first_q    = np.linspace(pre_q, after_q, int(freq*(desired_time)/2))
                 new_q_arr      = new_first_q 
             else:
                 pre_q, after_q = joint_seq[idx][i:i+2]
-                new_q          = np.linspace(pre_q, after_q, int(freq*(desired_time)))
+                new_q          = np.linspace(pre_q, after_q, int(freq*(desired_time)/2))
                 new_q_arr      = np.append(new_q_arr, new_q)
 
         new_q_list.append(new_q_arr)
