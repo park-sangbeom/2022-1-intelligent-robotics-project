@@ -1,4 +1,4 @@
-import numpy as np 
+import numpy as np
 from utils.util_fk import *
 from utils.util_ik import * 
 
@@ -79,13 +79,7 @@ def get_p_chain(robot_jc):
     for idx in range(n_joint):
         p_list[idx] = robot_jc[idx].p.T
     return p_list 
-
-def get_cap_p_chain(robot_lc):
-    n_joint = len(robot_lc)
-    p_list = np.zeros((n_joint,3))
-    for idx in range(n_joint):
-        p_list[idx] = robot_lc[idx].cap.p.T
-    return p_list     
+  
 
 def get_center_p_chain(robot_lc):
     n_link = len(robot_lc)#TODO:End joint is None, Should fix it later. 
@@ -101,12 +95,6 @@ def get_name_chain(robot_lc):
         name_list.append(robot_lc[idx].name)
     return name_list 
 
-def get_cap_R_chain(robot_lc):
-    n_joint = len(robot_lc) 
-    R_list = [] 
-    for idx in range(n_joint):
-        R_list.append(robot_lc[idx].cap.R)
-    return R_list
 
 def get_R_chain(robot_jc):
     n_joint = len(robot_jc)
@@ -115,12 +103,6 @@ def get_R_chain(robot_jc):
         R_list.append(robot_jc[idx].R)
     return R_list
 
-def get_cap_radius(robot_lc):
-    n_link = len(robot_lc)
-    cap_radius = []
-    for idx in range(n_link):
-        cap_radius.append(robot_lc[idx].cap.radius)
-    return cap_radius
 
 def get_height_chain(robot_lc):
     height_lst = []
@@ -129,12 +111,6 @@ def get_height_chain(robot_lc):
         height_lst.append(robot_lc[idx].cap.height)
     return height_lst
 
-def get_cap_size_chain(robot_lc):
-    size_lst = []
-    n_link = len(robot_lc)
-    for idx in range(n_link):  
-        size_lst.append(robot_lc[idx].cap.size)
-    return size_lst
 
 def get_rpy_from_R_mat(R_list):
     rpy_list = []
@@ -151,12 +127,33 @@ def get_rev_joi_chain(robot_jc, ctrl_num):
             revolute_type.append(robot_jc[idx].id)
     return revolute_type 
 
-def get_cap_fcl_ingredients(name_list, link_p_list, rpy_list, height_list, radius_list): 
-    fcl_links = [{"name":name, 
-                  "type":"capsule", 
-                  "position":[link_p[0], link_p[1], link_p[2]], 
-                  "orientation":[rpy[0], rpy[1], rpy[2]],
-                  "size":[height, radius]} 
-                for name, link_p, rpy, height, radius in zip(name_list, link_p_list, rpy_list, height_list, radius_list)]
-    return fcl_links
-### Capsule ### 
+def q_interpolation(joint_val_seq, desired_time, num_interpol):
+    freq = 500
+    joint_seq_arr    = np.array(joint_val_seq, dtype=object)
+    joint_seq        = joint_seq_arr.T
+    new_q_list = []
+    for idx in range(len(joint_seq)):
+        for i in range(len(joint_seq[idx])):
+            if i ==(len(joint_seq[idx])-1):
+                break 
+            if i == 0:
+                pre_q, after_q = joint_seq[idx][i:i+2]
+                new_first_q    = np.linspace(pre_q, after_q, int(freq*(desired_time)/num_interpol))
+                new_q_arr      = new_first_q 
+            else:
+                pre_q, after_q = joint_seq[idx][i:i+2]
+                new_q          = np.linspace(pre_q, after_q, int(freq*(desired_time)/num_interpol))
+                new_q_arr      = np.append(new_q_arr, new_q)
+        new_q_list.append(new_q_arr)
+    np_q = np.array(new_q_list, dtype=object)
+    np_q_trans =np_q.T 
+    return np_q_trans
+
+def euclidean_dist(point1, point2):
+    return math.sqrt(sum([math.pow(point1[i] - point2[i], 2) for i in range(len(point1))]))
+
+def get_desired_time(start_pos, target_pos, desired_vel): 
+    length = euclidean_dist(start_pos, target_pos)    
+    desired_time = length/desired_vel
+    print("Time", desired_time)
+    return desired_time

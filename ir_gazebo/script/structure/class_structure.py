@@ -191,16 +191,28 @@ class CHAIN:
     def add_joi_to_robot(self):
         # Other joints     
         for idx, joint in enumerate(self.parser.joint): 
-            self.joint.append(JOINT(name=joint['name'], 
-                                        id=joint['id'], 
-                                        mother = self.parser.get_mother(joint['parent']), 
-                                        child=self.parser.get_child_joint_tree(joint["child"]), q=0, 
-                                        a=column(joint['axis']), 
-                                        b=column(joint['xyz']), 
-                                        p=column_v(0, 0, 0), 
-                                        R=np.eye(3), 
-                                        R_offset=make_rotation(rad=joint['rpy']),
-                                        type=joint['type']))    
+            if idx == 0: 
+                self.joint.append(JOINT(name=joint['name'], 
+                                            id=joint['id'], 
+                                            mother = self.parser.get_mother(joint['parent']), 
+                                            child=self.parser.get_child_joint_tree(joint["child"]), q=0, 
+                                            a=column(joint['axis']), 
+                                            b=column(joint['xyz']), 
+                                            p=column_v(0.18, 0, 0.79), 
+                                            R=np.eye(3), 
+                                            R_offset=make_rotation(rad=joint['rpy']),
+                                            type=joint['type']))     
+            else:             
+                self.joint.append(JOINT(name=joint['name'], 
+                                            id=joint['id'], 
+                                            mother = self.parser.get_mother(joint['parent']), 
+                                            child=self.parser.get_child_joint_tree(joint["child"]), q=0, 
+                                            a=column(joint['axis']), 
+                                            b=column(joint['xyz']), 
+                                            p=column_v(0, 0, 0), 
+                                            R=np.eye(3), 
+                                            R_offset=make_rotation(rad=joint['rpy']),
+                                            type=joint['type']))    
         # CONNECT ALL JOINTS TO THE ROBOT 
         self.fk_chain(1)
         """ Verbose Function """
@@ -257,7 +269,7 @@ if __name__=="__main__":
     #                         disabled_joi_id=[],
     #                         joi_ctrl_num=7)
     variable = make_ik_input(target_name=['wrist_3_joint'],
-                            target_pos=[[0.4, 0.0, 0.4]],
+                            target_pos=[[0.4, 0.0, 0.9]],
                             target_rot=[[0, 3.14, -1.57]],
                             solve_pos=[1],
                             solve_rot=[1],
