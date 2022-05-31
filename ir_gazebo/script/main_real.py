@@ -39,25 +39,7 @@ def prepose():
     except:
         raise
 
-def homepose():
-    try: 
-        q = [2.0, -0.6596, 1.3364, 0.0350, 0, 0]
-        g = FollowJointTrajectoryGoal()
-        g.trajectory = JointTrajectory()
-        g.trajectory.joint_names = JOINT_NAMES
-        g.trajectory.points[JointTrajectoryPoint(positions=q, velocities=[0.]*6, time_from_start=rospy.Duration(1.0))]
-        client.send_goal(g)
-        client.wait_for_result()
-    except KeyboardInterrupt:
-        client.cancel_goal()
-        raise
-    except:
-        raise
-
-def real_move(joint_list):
-    print("Check")
-    print("joint_list", joint_list)
-    print("joint_list shape", joint_list.shape)
+def real_move(joint_list, num_interpol):
     g = FollowJointTrajectoryGoal()
     g.trajectory = JointTrajectory()
     g.trajectory.joint_names = JOINT_NAMES
@@ -70,13 +52,11 @@ def real_move(joint_list):
                 JointTrajectoryPoint(positions=q, velocities=[0]*6, time_from_start=rospy.Duration(3))]  
             d=3
         else:
-            vel = (q-prev_q)/5 # TODO: CHECK TIME
-            print("q", q, "prev_q",prev_q)
-            print("vel", vel)
+            vel = (q-prev_q)/num_interpol # TODO: CHECK VELOCITY
             g.trajectory.points.append(
                 JointTrajectoryPoint(positions=q, velocities=vel,time_from_start=rospy.Duration(d))) 
         prev_q = q
-        d+=0.002 # TODO: CHECK TIME
+        d+=0.002 
     try:
         print("MOVE")
         client.send_goal(g)
@@ -84,7 +64,7 @@ def real_move(joint_list):
     except:
         raise
 
-def main():
+def main(start_pos, target_pos, num_interpol, desired_vel):
     global client
     try:
         client = actionlib.SimpleActionClient('follow_joint_trajectory', FollowJointTrajectoryAction)
@@ -94,19 +74,14 @@ def main():
         print("Please make sure that your robot can move freely between these poses before proceeding!")
         inp = raw_input("Continue? y/n: ")[0]
         # inp = input("Continue? y/n: ")
-        print("inp", inp)
         if (inp == 'y'):
             prepose()
             s = time.clock()
-            q_list_forward  = robot.waypoint_plan(np.array([0.6, 0, 0.85]), np.array([0.9, 0, 0.85]), 5, 0.2)
-            print("q_list_forward",q_list_forward)
-            print("q_shape", q_list_forward.shape)
-            real_move(q_list_forward)
+            q_list_forward  = robot.waypoint_plan(start_pos, target_pos, num_interpol, desired_vel)
+            real_move(q_list_forward, num_interpol)
             time.sleep(1)
-            # q_list_backward = robot.waypoint_plan(np.array([0.9, 0, 0.85]), np.array([0.6, 0, 0.85]), 5, 0.2)
-            # real_move(q_list_backward)
-            print("finished")
-            print(time.clock()-s)
+            print("FINISHED")
+            print("WALL CLOCK: {}".format(time.clock()-s))
 
         else:
             print("Halting program")
@@ -118,6 +93,6 @@ def main():
 
 if __name__ == "__main__":
     rospy.init_node("REAL_WORLD")
-    main()
+    main(start_pos=np.array([0.6, 0, 0.85]), target_pos=np.array([0.9, 0, 0.85]), num_interpol=5, desired_vel=0.2)
 
 
