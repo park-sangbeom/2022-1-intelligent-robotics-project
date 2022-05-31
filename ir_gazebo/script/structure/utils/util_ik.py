@@ -147,7 +147,7 @@ def damped_ls(J_use, ik_err):
     lambda_rate = 0.01
     lambda_min = 1e-6
     lambda_max = 1e-0
-    step_size = 1 #default: 0.01 
+    step_size = 0.1
     dq_th = 40*np.math.pi/180
     ik_err_avg = np.mean(abs(ik_err))
     # Damping Term 
