@@ -1,6 +1,6 @@
 import numpy as np
-from util_fk import *
-from util_ik import * 
+from utils.util_fk import *
+from utils.util_ik import * 
 
 def update_q_chain(robot_jc, q_list, ctrl_joint):
     for idx in range(len(robot_jc)):
@@ -133,24 +133,19 @@ def q_interpolation(joint_val_seq, desired_time, num_interpol):
     joint_seq        = joint_seq_arr.T
     new_q_list = []
     for idx in range(len(joint_seq)):
-        print("idx",idx)
-        if idx ==4:
-            print(joint_seq[idx])
         for i in range(len(joint_seq[idx])):
 
             if i ==(len(joint_seq[idx])-1):
                 break 
             if i == 0:
                 pre_q, after_q = joint_seq[idx][i:i+2]
-                new_first_q    = np.linspace(pre_q, after_q, int(freq*(desired_time)/4))
+                new_first_q    = np.linspace(pre_q, after_q, int(freq*(desired_time)))
                 new_q_arr      = new_first_q 
             else:
                 pre_q, after_q = joint_seq[idx][i:i+2]
-                print("preq", pre_q, "afterq", after_q)
-                new_q          = np.linspace(pre_q, after_q, int(freq*(desired_time)/4))
+                new_q          = np.linspace(pre_q, after_q, int(freq*(desired_time)))
                 new_q_arr      = np.append(new_q_arr, new_q)
 
-        print("q_shape",new_q_arr.shape)
         new_q_list.append(new_q_arr)
     np_q = np.array(new_q_list, dtype=object)
     np_q_trans =np_q.T 
@@ -162,5 +157,5 @@ def euclidean_dist(point1, point2):
 def get_desired_time(start_pos, target_pos, desired_vel): 
     length = euclidean_dist(start_pos, target_pos)    
     desired_time = length/desired_vel
-    print("Time", desired_time)
+    print("Length",length, "Time", desired_time)
     return desired_time

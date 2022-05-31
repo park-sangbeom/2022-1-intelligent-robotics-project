@@ -85,15 +85,16 @@ def main():
         client.wait_for_server()
         print("Connected to server")
         print("Please make sure that your robot can move freely between these poses before proceeding!")
-        inp = raw_input("Continue? y/n: ")[0]
+        # inp = raw_input("Continue? y/n: ")[0]
+        inp = input("Continue? y/n: ")
         print("inp", inp)
         if (inp == 'y'):
             s = time.clock()
             # prepose()
-            q_list_forward  = robot.waypoint_plan(np.array([0.6, 0, 0.85]), np.array([0.9, 0, 0.85]), 5)
+            q_list_forward  = robot.waypoint_plan(np.array([0.6, 0, 0.85]), np.array([0.9, 0, 0.85]), 5, 0.075)
             # real_move(q_list_forward)
             time.sleep(1)
-            # q_list_backward = robot.waypoint_plan(np.array([0.9, 0, 0.85]), np.array([0.6, 0, 0.85]), 5)
+            # q_list_backward = robot.waypoint_plan(np.array([0.9, 0, 0.85]), np.array([0.6, 0, 0.85]), 5, 0.075)
             # real_move(q_list_backward)
             print("finished")
             print(time.clock()-s)
@@ -105,9 +106,9 @@ def main():
         raise
 
 
-
 if __name__ == "__main__":
     rospy.init_node("REAL_WORLD")
-    main()
+    main()    
+
 
 
