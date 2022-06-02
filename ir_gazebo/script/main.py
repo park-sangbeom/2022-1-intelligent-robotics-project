@@ -14,7 +14,7 @@ def main():
     y = center_point[1]
     z = center_point[2]
     offset_angle = get_direction_offset(x, y)
-    real_robot.grasp_single_obj(target_pos=np.array([x, y, z]), num_interpol=5, desired_vel=0.2, direction_offset=offset_angle)
+    real_robot.grasp_single_obj(target_pos=[x, y, z], num_interpol=5, desired_vel=0.2, direction_offset=offset_angle)
 
 
 if __name__=="__main__": 

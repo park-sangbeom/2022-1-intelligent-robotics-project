@@ -20,7 +20,7 @@ def make_ik_input(target_name=["base_joint"],
             "disabled_joi_id":disabled_joi_id, 
             "joint_ctrl_num":joi_ctrl_num}
 
-def get_aug_ik_ingredients(robot_jc, variables):
+def get_aug_ik_ingredients(robot_jc, variables, _wn_pos=1/0.3, _wn_ang=1/(2*np.math.pi)):
     # Set variables
     joint_name_trgt   = variables['target_joint_name']
     p_trgt_goal       = variables["target_joint_position"]
@@ -39,8 +39,8 @@ def get_aug_ik_ingredients(robot_jc, variables):
     child_trgt_curr   = []
 
     # Weight Position, Orientation
-    wn_pos = 1/0.3
-    wn_ang = 1/(2*np.math.pi)
+    wn_pos = _wn_pos
+    wn_ang = _wn_ang
     wn_pre = []
     for choose_p in IK_P:
         if choose_p:
@@ -278,3 +278,6 @@ def decompose_rotation_matrix(R):
 def get_direction_offset(x,y):
     offset_angle = math.atan2(y,x)
     return offset_angle
+
+def get_curr_wrist_pos(robot_jc):
+    return robot_jc[6].p

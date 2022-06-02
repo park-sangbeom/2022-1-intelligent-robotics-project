@@ -134,11 +134,11 @@ class CHAIN:
             self.fk_chain(child_idx)
 
     # Inverse Kinematics LM
-    def aug_inverse_kinmatics_LM(self, variables):
+    def aug_inverse_kinmatics_LM(self, variables, wn_pos, wn_ang):
         ctrl_num = variables["joint_ctrl_num"]
         # Get revolute_joint for IK 
         rev_joi    = get_rev_joi_chain(self.joint, ctrl_num)
-        J, err, we = get_aug_ik_ingredients(self.joint, variables)
+        J, err, we = get_aug_ik_ingredients(self.joint, variables, wn_pos, wn_ang)
         self.fk_chain(1)
 
         Ek = np.matmul(err.T, we) 
@@ -159,9 +159,9 @@ class CHAIN:
                 self.fk_chain(1)
                 break 
     # IK Solver
-    def get_q_from_ik(self, variable):
+    def get_q_from_ik(self, variable, _wn_pos=1/0.3, _wn_ang=1/(2*np.math.pi)):
         self.fk_chain(1)
-        self.aug_inverse_kinmatics_LM(variable)
+        self.aug_inverse_kinmatics_LM(variable, _wn_pos, _wn_ang)
         q_list = get_q_chain(self.joint)
         return q_list 
 

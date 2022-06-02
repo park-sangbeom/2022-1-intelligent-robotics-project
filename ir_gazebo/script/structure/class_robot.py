@@ -8,14 +8,14 @@ from structure.utils.util_parser import PARSER
 from structure.class_fcl import PyFCL
 
 class ROBOT: 
-    def __init__(self, _file_name="structure/utils/ur5e_onrobot.urdf"): #ir_gazebo/script/structure/ur5e_onrobot.urdf  #structure/ur5e_onrobot.urdf
+    def __init__(self, _file_name="structure/utils/ur5e_onrobot.urdf"): 
         self.chain  = CHAIN(_file_name)
         self.parser = PARSER(_file_name)
         self.fcl    = PyFCL(_verbose=False)
         self.chain.add_joi_to_robot()
         self.chain.add_link_to_robot()
 
-    def waypoint_plan(self, start_pos, target_pos, num_interpol, desired_vel, direction_offset): 
+    def waypoint_plan(self, start_pos, target_pos, num_interpol, desired_vel): 
         offset = [0.277, 0, 0] 
         total_q_list = [] 
         interpoled_points = np.linspace(start=start_pos, stop=target_pos, num=num_interpol)
@@ -24,7 +24,6 @@ class ROBOT:
             finger_pos = wrist_pos + offset
             if ((num) == (num_interpol-1)):
                 q_list = self.chain.get_q_from_ik(variable) 
-                # q_list[1] = direction_offset
                 control_q_list = q_list[1:7] # Excluding base joint 
                 reshaped_q = control_q_list.reshape([6,])
                 total_q_list.append(reshaped_q) # Get manipulator joints 
@@ -40,21 +39,12 @@ class ROBOT:
                                          disabled_joi_id = [],
                                          joi_ctrl_num=7) # Including base joint       
                 q_list = self.chain.get_q_from_ik(variable)
-                # q_list[1] = direction_offset
                 control_q_list = q_list[1:7] # Excluding base joint 
                 reshaped_q = control_q_list.reshape([6,])
                 total_q_list.append(reshaped_q) # Get manipulator joints 
         desired_time = get_desired_time(start_pos, target_pos, desired_vel)
         interpoled_q = q_interpolation(total_q_list, desired_time, num_interpol)
         return interpoled_q 
-
-    def direction_set(self, direction_offset=0): 
-        joints = np.array([direction_offset, -1.57, 1.57, 0, 0, 0])
-        rev_joi = get_rev_joi_chain(self.chain.joint, len(joints))
-        add_joints(self.chain.joint, rev_joi, joints)
-        self.chain.fk_chain(1)
-        start_wrist_pos = self.chain.joint[6].p
-        return joints, start_wrist_pos
 
 
 

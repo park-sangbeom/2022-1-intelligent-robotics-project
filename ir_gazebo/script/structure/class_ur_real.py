@@ -27,6 +27,7 @@ class RealUR:
         self.JOINT_NAMES = ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint',
                             'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
         self.arm_pub     = rospy.Publisher('arm_controller/command', JointTrajectory, queue_size = 10)
+        self.up_offset   = [0, 0, 0.3]
 
     def move_arm(self, joints):
         try: 
@@ -47,7 +48,7 @@ class RealUR:
         except:
             raise
 
-    def prepose(self):
+    def initpose(self):
         try: 
             q = [0.9, -0.6596, 1.3364, 0.0350, 0, 0]
             g = FollowJointTrajectoryGoal()
@@ -66,14 +67,13 @@ class RealUR:
         except:
             raise
 
-
     def direction_set(self, direction_offset=0): 
         joints = np.array([direction_offset, -1.57, 1.57, 0, 0, 0])
         rev_joi = get_rev_joi_chain(self.robot.chain.joint, len(joints))
         add_joints(self.chain.joint, rev_joi, joints)
         self.robot.chain.fk_chain(1)
         self.move_arm(joints)
-        start_wrist_pos = self.robot.chain.joint[6].p
+        start_wrist_pos = get_curr_wrist_pos(self.robot.chain.joint)
         return start_wrist_pos
 
 
@@ -114,19 +114,29 @@ class RealUR:
             print("Please make sure that your robot can move freely between these poses before proceeding!")
             inp = input("Continue? y/n: ")[0]
             if (inp == 'y'):
-                self.prepose()
+                # Initialize 
+                self.initpose()
                 open_grasp(230, 1000, graspclient)
+                # Change direction to the target object
                 start_pos = self.direction_set(direction_offset)
-                q_list_forward  = self.robot.waypoint_plan(start_pos, target_pos, num_interpol, desired_vel, direction_offset)
-                self.real_move(q_list_forward, num_interpol)
+                # Get q list using linear interpolation plan 
+                q_list  = self.robot.waypoint_plan(start_pos, target_pos, num_interpol, desired_vel)
+                # Move UR5e 
+                self.real_move(q_list, num_interpol)
                 time.sleep(1)
+                # Close gripper to grasp the target object
                 close_grasp(230, 700, graspclient)
-                q_list_upward  = self.robot.waypoint_plan(target_pos, target_pos+[0, 0, 0.3], num_interpol, desired_vel, direction_offset)
+                # Get q list to move upward 
+                start_pos2 = get_curr_wrist_pos(self.robot.chain.joint)
+                q_list_upward  = self.robot.waypoint_plan(start_pos2, start_pos2+self.up_offset, num_interpol, desired_vel)
+                # Move UR5e 
                 self.real_move(q_list_upward, num_interpol)
                 time.sleep(2)
-                self.prepose()
+                # Initialize 
+                self.initpose()
+                # Open gripper to place the target object 
                 open_grasp(230, 1000, graspclient)
-                print("FINISHED")
+                print("Finish plan")
             else:
                 print("Halting program")
         except KeyboardInterrupt:
