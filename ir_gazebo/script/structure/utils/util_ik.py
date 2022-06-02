@@ -31,7 +31,7 @@ def get_aug_ik_ingredients(robot_jc, variables):
     R_err_weight      = variables["rotation_weight"]
     disable_joi       = variables["disabled_joi_id"]
     joint_length_ctrl = variables["joint_ctrl_num"]
-    final_joint_id    = joint_length_ctrl+1 # Including baseoffset
+    final_joint_id    = joint_length_ctrl+1 # Including base joint
     p_trgt_curr       = []
     R_trgt_curr       = []
     id_trgt_curr      = []

@@ -105,5 +105,5 @@ def make_rotation(rad=0):
             idx2 = rot_z(float(rad_num))
         elif idx==2 and float(rad_num)==0: 
             idx2 = rot_e()
-    rot = idx2.dot(idx1).dot(idx0) #dx0.dot(idx1).dot(idx2)
+    rot = idx2.dot(idx1).dot(idx0) 
     return rot

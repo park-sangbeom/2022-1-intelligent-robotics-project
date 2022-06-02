@@ -96,7 +96,7 @@ class LINK(CAPSULE):
         self.cap.center_p = cap_center_p #In case of mesh type
 
 class CHAIN:
-    def __init__(self, _file_name="ir_gazebo/script/structure/ur5e_onrobot.urdf", verbose=False):
+    def __init__(self, _file_name="ir_gazebo/script/structure/utils/ur5e_onrobot.urdf", verbose=False):
         self.parser = PARSER(_file_name)
         self.joint  = []
         self.link   = [] 
@@ -104,26 +104,8 @@ class CHAIN:
 
     def fk_chain(self, idx_to):
         if idx_to == 0:
-            return None 
-        idx_fr = self.joint[idx_to-1].mother 
-        if idx_fr != 0:
-            joint_fr = self.joint[idx_fr-1]
-            joint_to = self.joint[idx_to-1]
-            joint_to.p = (np.matmul(joint_fr.R, joint_to.b) + joint_fr.p).astype(float)
-            if (joint_to.a == column_v(1,1,1)).all():#(joint_to.a == column_v(0,0,0)).all:
-                joint_to.R = np.matmul(joint_fr.R, joint_to.R_offset)
-            else:   
-                joint_fr_after = np.matmul(joint_fr.R, joint_to.R_offset)
-                joint_to.R = np.matmul(joint_fr_after, rodrigues(joint_to.a, joint_to.q)).astype(float)
-
-        for child_idx in self.joint[idx_to-1].child:
-            self.fk_chain(child_idx)
-
-    def fk_link_chain(self, idx_to):
-        if idx_to == 0:
-            # For the base link center_p
             joint_to = self.joint[idx_to]
-            link_to = self.link[idx_to]
+            link_to  = self.link[idx_to]
             p = joint_to.b
             r = joint_to.R
             T_capsule = np.matmul(pr2t(p, r) ,link_to.T_offset)
@@ -131,16 +113,14 @@ class CHAIN:
             return None 
         idx_fr = self.joint[idx_to-1].mother 
         if idx_fr != 0:
-            link_fr = self.link[idx_fr-1]
-            link_to = self.link[idx_to-1]
+            link_fr  = self.link[idx_fr-1]
+            link_to  = self.link[idx_to-1]
             joint_fr = self.joint[idx_fr-1]
             joint_to = self.joint[idx_to-1]
             joint_to.p = (np.matmul(joint_fr.R, joint_to.b) + joint_fr.p).astype(float)
             link_to.cap.p = joint_to.p + link_fr.P_offset 
 
-            #link_to.cap.center_p = (np.matmul(joint_fr.R, joint_to.b) + link_fr.cap.center_p).astype(float)
-
-            if (joint_to.a == column_v(1,1,1)).all():#(joint_to.a == column_v(0,0,0)).all:
+            if (joint_to.a == column_v(1,1,1)).all():
                 joint_to.R = np.matmul(joint_fr.R, joint_to.R_offset)
             else:   
                 joint_fr_after = np.matmul(joint_fr.R, joint_to.R_offset)
@@ -151,7 +131,7 @@ class CHAIN:
             link_to.cap.R = t2r(T_capsule)
 
         for child_idx in self.joint[idx_to-1].child:
-            self.fk_link_chain(child_idx)
+            self.fk_chain(child_idx)
 
     # Inverse Kinematics LM
     def aug_inverse_kinmatics_LM(self, variables):
@@ -160,7 +140,6 @@ class CHAIN:
         rev_joi    = get_rev_joi_chain(self.joint, ctrl_num)
         J, err, we = get_aug_ik_ingredients(self.joint, variables)
         self.fk_chain(1)
-        self.fk_link_chain(1)
 
         Ek = np.matmul(err.T, we) 
         Ek = np.matmul(Ek, err) 
@@ -178,16 +157,15 @@ class CHAIN:
             else: 
                 move_joints(self.joint, rev_joi, -dq) #revert
                 self.fk_chain(1)
-                self.fk_link_chain(1)
                 break 
-
+    # IK Solver
     def get_q_from_ik(self, variable):
         self.fk_chain(1)
         self.aug_inverse_kinmatics_LM(variable)
         q_list = get_q_chain(self.joint)
         return q_list 
 
-    """ CONNECT JOINT&LINK TREE """
+    # Add joint to robot 
     def add_joi_to_robot(self):
         # Other joints     
         for idx, joint in enumerate(self.parser.joint): 
@@ -198,7 +176,7 @@ class CHAIN:
                                             child=self.parser.get_child_joint_tree(joint["child"]), q=0, 
                                             a=column(joint['axis']), 
                                             b=column(joint['xyz']), 
-                                            p=column_v(0.18, 0, 0.79), 
+                                            p=column_v(0.18, 0, 0.79), # Attached position offset from the world 
                                             R=np.eye(3), 
                                             R_offset=make_rotation(rad=joint['rpy']),
                                             type=joint['type']))     
@@ -213,8 +191,6 @@ class CHAIN:
                                             R=np.eye(3), 
                                             R_offset=make_rotation(rad=joint['rpy']),
                                             type=joint['type']))    
-        # CONNECT ALL JOINTS TO THE ROBOT 
-        self.fk_chain(1)
         """ Verbose Function """
         if self.verbose:
             for joi in self.joint: 
@@ -243,7 +219,8 @@ class CHAIN:
                                         cap_center_p = column_v(0.0, 0.0, 0.0),
                                         cap_height   = capsule["height"],
                                         color        = get_color_from_urdf(link['color'])))
-        # CONNECT ALL LINKS TO THE ROBOT 
+        self.fk_chain(1)
+        # CONNECT ALL JOINT/LINKS TO THE ROBOT 
         if self.verbose:
             print('len_link', len(self.link))
             for link in self.link:
@@ -253,29 +230,3 @@ class CHAIN:
                            link.mesh_path, link.collision_type, str(link.radius).ljust(10), str(link.height).ljust(10), 
                            link.cap.p.T, link.cap.center_p))
 
-if __name__=="__main__":
-    file_name = "ir_gazebo/script/structure/ur5e_onrobot.urdf"
-    chain = CHAIN(file_name, verbose=True)
-    chain.add_joi_to_robot()
-    chain.add_link_to_robot()
-    """ UNIT TEST """
-    # variable = make_ik_input(target_name=['wrist_3_joint', 'gripper_finger1_finger_tip_joint'],
-    #                         target_pos=[[0.4, 0.0, 0.4], [0.4+0.15, 0.0, 0.4]],
-    #                         target_rot=[[0, 3.14, -1.57],[0,0,0]],
-    #                         solve_pos=[1, 1],
-    #                         solve_rot=[1, 0],
-    #                         weight_pos=1,
-    #                         weight_rot=1,
-    #                         disabled_joi_id=[],
-    #                         joi_ctrl_num=7)
-    variable = make_ik_input(target_name=['wrist_3_joint'],
-                            target_pos=[[0.4, 0.0, 0.9]],
-                            target_rot=[[0, 3.14, -1.57]],
-                            solve_pos=[1],
-                            solve_rot=[1],
-                            weight_pos=1,
-                            weight_rot=1,
-                            disabled_joi_id=[],
-                            joi_ctrl_num=7)
-    chain.aug_inverse_kinmatics_LM(variable)
-    print(chain.joint[6].name, chain.joint[6].p)

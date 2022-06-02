@@ -1,6 +1,6 @@
 import numpy as np
-from util_fk import *
-from util_ik import * 
+from utils.util_fk import *
+from utils.util_ik import * 
 
 def update_q_chain(robot_jc, q_list, ctrl_joint):
     for idx in range(len(robot_jc)):
@@ -157,5 +157,4 @@ def euclidean_dist(point1, point2):
 def get_desired_time(start_pos, target_pos, desired_vel): 
     length = euclidean_dist(start_pos, target_pos)    
     desired_time = length/desired_vel
-    print("Length",length, "Time", desired_time)
     return desired_time
