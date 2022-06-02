@@ -1,14 +1,14 @@
 from calendar import c
 from numpy import interp
 import rospy
-from class_structure import *
-from utils.util_ik import *
-from utils.util_structure import *
-from utils.util_parser import PARSER
-from class_fcl import PyFCL
+from structure.class_structure import *
+from structure.utils.util_ik import *
+from structure.utils.util_structure import *
+from structure.utils.util_parser import PARSER
+from structure.class_fcl import PyFCL
 
 class ROBOT: 
-    def __init__(self, _file_name="utils/ur5e_onrobot.urdf"): #ir_gazebo/script/structure/ur5e_onrobot.urdf  #structure/ur5e_onrobot.urdf
+    def __init__(self, _file_name="structure/utils/ur5e_onrobot.urdf"): #ir_gazebo/script/structure/ur5e_onrobot.urdf  #structure/ur5e_onrobot.urdf
         self.chain  = CHAIN(_file_name)
         self.parser = PARSER(_file_name)
         self.fcl    = PyFCL(_verbose=False)

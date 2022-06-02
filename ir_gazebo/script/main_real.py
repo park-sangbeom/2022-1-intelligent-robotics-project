@@ -125,13 +125,17 @@ def main(start_pos, target_pos, num_interpol, desired_vel):
         inp = input("Continue? y/n: ")[0]
         if (inp == 'y'):
             prepose()
-            s = time.clock()
+            open_grasp(230, 1000, graspclient)
             q_list_forward  = robot.waypoint_plan(start_pos, target_pos, num_interpol, desired_vel)
             real_move(q_list_forward, num_interpol)
             time.sleep(1)
-            close_grasp(230, 500, graspclient)
+            close_grasp(230, 700, graspclient)
+            q_list_upward  = robot.waypoint_plan(target_pos, target_pos+[0, 0, 0.3], num_interpol, desired_vel)
+            real_move(q_list_upward, num_interpol)
+            time.sleep(2)
+            prepose()
+            open_grasp(230, 1000, graspclient)
             print("FINISHED")
-            print("WALL CLOCK: {}".format(time.clock()-s))
         else:
             print("Halting program")
     except KeyboardInterrupt:
@@ -142,12 +146,15 @@ if __name__ == "__main__":
     rospy.init_node("REAL_WORLD")
     realsense = Realsense435()
     middle_points = callback(realsense.point_cloud)
-    middle_points = middle_points[0]
+    middle_point = middle_points[0]
     x = middle_points[0]
     y = middle_points[1]
     z = middle_points[2]
-    print("x:{}, y:{}, z:{}".format(x,y,z))
-    main(start_pos=np.array([0.6, 0, 0.85]), target_pos=np.array([x, y, z]), num_interpol=5, desired_vel=0.2)
+
+    print(middle_points)
+
+    # print("x:{}, y:{}, z:{}".format(x,y,z))
+    # main(start_pos=np.array([0.6, 0, 0.85]), target_pos=np.array([x, y, z]), num_interpol=5, desired_vel=0.2)
     # main(start_pos=np.array([0.6, 0, 0.85]), target_pos=np.array([0.9, 0, 0.85]), num_interpol=5, desired_vel=0.2)
 
 

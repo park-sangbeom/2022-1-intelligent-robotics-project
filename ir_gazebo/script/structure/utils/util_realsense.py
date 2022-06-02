@@ -5,10 +5,9 @@ from sensor_msgs.msg import PointCloud2
 import sensor_msgs.point_cloud2 as pc2
 import numpy as np
 import pcl
-import pcl_helper
-from pcl_helper import *
+from structure.utils.pcl_helper import *
 import tf
-import utils.util_fk
+from structure.utils.util_fk import *
 from tf.transformations import rotation_matrix
 import math
 
@@ -163,18 +162,18 @@ def numpy_to_pcd(nump):
 
 # callback 함수
 def callback(input_ros_msg):
-    cloud = pcl_helper.ros_to_pcl(input_ros_msg)
-    cloud = do_passthrough(cloud,'z',0,1.5)
-    cloud = do_passthrough(cloud,'x',-0.4,0.4)
+    cloud = ros_to_pcl(input_ros_msg)
     cloud = do_voxel_grid_downssampling(cloud,0.005)
     delete_floor = do_ransac_plane_segmentation(cloud,pcl.SACMODEL_PLANE,pcl.SAC_RANSAC,0.043)
     delete_desk = do_ransac_plane_segmentation(delete_floor,pcl.SACMODEL_PLANE,pcl.SAC_RANSAC,0.043)
+    delete_desk = do_passthrough(delete_desk,'x',-0.4,0.4)
+    delete_desk = do_passthrough(delete_desk,'y',-0.2, 1)
+    # cloud = do_passthrough(cloud,'y',-0.2, 1)
     delete_desk_1 = delete_desk.to_array()
     A = tf_matrix()
     delete_desk_points = change_frame(A,delete_desk_1)
     delete_desk_2 = numpy_to_pcd(delete_desk_points)
     cluster_indices, white_cloud = euclid_cluster(delete_desk_2)
-    get_color_list.color_list = []
     obj_points = get_obj_point(cluster_indices,white_cloud)
     middle_point_lists = []
     for i in range(len(obj_points)):
@@ -182,20 +181,24 @@ def callback(input_ros_msg):
         x,y,z = get_middle_point(obj_group_cloud)
         middle_point = [x,y,z]
         middle_point_lists.append(middle_point)
-
+    get_color_list.color_list = []
+    final = cluster_mask(cluster_indices,white_cloud)
+    final_new = pcl_to_ros2(final)
     """ 
     NEED CAMERA CALIBRATION
     """
-    rotation_mt_y = util_fk.Rotation_Y(0.73)
-    position_mt= util_fk.Translation(0.115, 0 ,1.48)
-    transform_mt = util_fk.HT_matrix(rotation_mt_y,position_mt)
+    rotation_mt_y = Rotation_Y(0.73)
+    position_mt= Translation(0.115, 0 ,1.48)
+    transform_mt = HT_matrix(rotation_mt_y,position_mt)
     middle_point_array = np.array(middle_point_lists)
     change = camera_to_base(transform_mt,middle_point_array)
     middle_points = list(change)
+    # print(middle_points)
+    # pub.publish(final_new)
     return middle_points
     
 if __name__ == "__main__":
     rospy.init_node('pointcloud', anonymous=True)
     rospy.Subscriber('/camera/depth/color/points', PointCloud2, callback)
-    # pub = rospy.Publisher("/camera/depth/color/points_new",PointCloud2,queue_size=1)
+    pub = rospy.Publisher("/camera/depth/color/points_new",PointCloud2,queue_size=1)
     rospy.spin()

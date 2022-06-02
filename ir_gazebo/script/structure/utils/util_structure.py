@@ -1,6 +1,6 @@
 import numpy as np
-from utils.util_fk import *
-from utils.util_ik import * 
+from structure.utils.util_fk import *
+from structure.utils.util_ik import * 
 
 def update_q_chain(robot_jc, q_list, ctrl_joint):
     for idx in range(len(robot_jc)):

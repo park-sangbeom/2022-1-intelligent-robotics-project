@@ -1,9 +1,9 @@
 import numpy as np 
-from utils.util_fk import *
-from utils.util_ik import * 
-from utils.util_structure import * 
-from utils.util_parser import PARSER 
-from utils.config import CONFIG 
+from structure.utils.util_fk import *
+from structure.utils.util_ik import * 
+from structure.utils.util_structure import * 
+from structure.utils.util_parser import PARSER 
+from structure.utils.config import CONFIG 
 
 class CAPSULE():
     def __init__(self, 
