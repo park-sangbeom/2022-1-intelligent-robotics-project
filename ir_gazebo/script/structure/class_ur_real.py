@@ -21,6 +21,7 @@ from structure.utils.util_realsense import callback
 
 class UR_REAL:
     def __init__(self):
+        rospy.init_node("REAL_WORLD")
         self.robot       = ROBOT()
         self.client      = None
         self.JOINT_NAMES = ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint',
@@ -71,7 +72,7 @@ class UR_REAL:
         except:
             raise
 
-    def onetime_grasp(self, start_pos, target_pos, num_interpol, desired_vel):
+    def grasp_single_obj(self, start_pos, target_pos, num_interpol, desired_vel):
         try:
             graspclient = ModbusTcpClient('192.168.0.110')
             slave = 65
@@ -100,18 +101,4 @@ class UR_REAL:
         except KeyboardInterrupt:
             rospy.signal_shutdown("KeyboardInterrupt")
             raise
-
-if __name__ == "__main__":
-    rospy.init_node("REAL_WORLD")
-    realsense = Realsense435()
-    real_robot = UR_REAL()
-    middle_points = callback(realsense.point_cloud)
-    middle_point = middle_points[0]
-    x = middle_points[0]
-    y = middle_points[1]
-    z = middle_points[2]
-    print(middle_points)
-    real_robot.onetime_grasp(start_pos=np.array([0.6, 0, 0.85]), target_pos=np.array([x, y, z]), num_interpol=5, desired_vel=0.2)
-
-
 
