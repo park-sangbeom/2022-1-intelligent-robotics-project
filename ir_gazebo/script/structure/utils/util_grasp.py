@@ -1,5 +1,5 @@
 """ FOR ONROBOT RG2 """
-from pymodbus.client.sync import ModbusTcpClient
+# from pymodbus.client.sync import ModbusTcpClient
 import time 
 
 def grasped(graspclient):

@@ -3,6 +3,7 @@ import numpy as np
 import time
 """ CUSTOM CLASS """
 from structure.class_robot import *
+from structure.utils.util_ik import *
 """ FOR ONROBOT RG2 """
 from pymodbus.client.sync import ModbusTcpClient
 from structure.utils.util_grasp import *
@@ -17,9 +18,8 @@ from math import pi
 import time 
 """ FOR REALSENSE """
 from structure.class_realsense435 import Realsense435
-from structure.utils.util_realsense import callback
 
-class UR_REAL:
+class RealUR:
     def __init__(self):
         rospy.init_node("REAL_WORLD")
         self.robot       = ROBOT()
@@ -27,6 +27,25 @@ class UR_REAL:
         self.JOINT_NAMES = ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint',
                             'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
         self.arm_pub     = rospy.Publisher('arm_controller/command', JointTrajectory, queue_size = 10)
+
+    def move_arm(self, joints):
+        try: 
+            q = joints
+            g = FollowJointTrajectoryGoal()
+            g.trajectory = JointTrajectory()
+            g.trajectory.joint_names = self.JOINT_NAMES
+            joint_states = rospy.wait_for_message("joint_states", JointState)
+            joints_pos   = joint_states.position
+            g.trajectory.points = [
+                JointTrajectoryPoint(positions=joints_pos, velocities=[0]*6, time_from_start=rospy.Duration(0.0)),
+                JointTrajectoryPoint(positions=q, velocities=[0]*6, time_from_start=rospy.Duration(3))]  
+            self.client.send_goal(g)
+            self.client.wait_for_result()
+        except KeyboardInterrupt:
+            self.client.cancel_goal()
+            raise
+        except:
+            raise
 
     def prepose(self):
         try: 
@@ -46,6 +65,17 @@ class UR_REAL:
             raise
         except:
             raise
+
+
+    def direction_set(self, direction_offset=0): 
+        joints = np.array([direction_offset, -1.57, 1.57, 0, 0, 0])
+        rev_joi = get_rev_joi_chain(self.robot.chain.joint, len(joints))
+        add_joints(self.chain.joint, rev_joi, joints)
+        self.robot.chain.fk_chain(1)
+        self.move_arm(joints)
+        start_wrist_pos = self.robot.chain.joint[6].p
+        return start_wrist_pos
+
 
     def real_move(self, joint_list, num_interpol):
         g = FollowJointTrajectoryGoal()
@@ -72,7 +102,7 @@ class UR_REAL:
         except:
             raise
 
-    def grasp_single_obj(self, start_pos, target_pos, num_interpol, desired_vel):
+    def grasp_single_obj(self, target_pos, num_interpol, desired_vel, direction_offset):
         try:
             graspclient = ModbusTcpClient('192.168.0.110')
             slave = 65
@@ -86,11 +116,12 @@ class UR_REAL:
             if (inp == 'y'):
                 self.prepose()
                 open_grasp(230, 1000, graspclient)
-                q_list_forward  = self.robot.waypoint_plan(start_pos, target_pos, num_interpol, desired_vel)
+                start_pos = self.direction_set(direction_offset)
+                q_list_forward  = self.robot.waypoint_plan(start_pos, target_pos, num_interpol, desired_vel, direction_offset)
                 self.real_move(q_list_forward, num_interpol)
                 time.sleep(1)
                 close_grasp(230, 700, graspclient)
-                q_list_upward  = self.robot.waypoint_plan(target_pos, target_pos+[0, 0, 0.3], num_interpol, desired_vel)
+                q_list_upward  = self.robot.waypoint_plan(target_pos, target_pos+[0, 0, 0.3], num_interpol, desired_vel, direction_offset)
                 self.real_move(q_list_upward, num_interpol)
                 time.sleep(2)
                 self.prepose()

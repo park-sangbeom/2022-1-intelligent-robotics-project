@@ -177,6 +177,11 @@ def move_joints(robot_jc, idx, dq):
         list_idx = id-1
         robot_jc[list_idx].q = robot_jc[list_idx].q + dq[i]
 
+def add_joints(robot_jc, ids, joints): 
+    for joint, id in zip(joints, ids): 
+        list_idx = id-1 
+        robot_jc[list_idx].q = joint
+
 def get_jc_by_id(robot_jc, id):
     for jc in robot_jc:
         if id == jc.id:
@@ -269,3 +274,7 @@ def decompose_rotation_matrix(R):
     pitch = math.atan2(-R[2, 0], (math.sqrt(R[2, 1] ** 2 + R[2, 2] ** 2)))
     yaw = math.atan2(R[1, 0], R[0, 0])
     return np.array([roll, pitch, yaw])
+
+def get_direction_offset(x,y):
+    offset_angle = math.atan2(y,x)
+    return offset_angle
