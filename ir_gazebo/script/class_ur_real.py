@@ -19,7 +19,7 @@ import time
 from structure.class_realsense435 import Realsense435
 from structure.utils.util_realsense import callback
 
-class UR_REAL()
+class UR_REAL:
     def __init__(self):
         self.robot       = ROBOT()
         self.client      = None
