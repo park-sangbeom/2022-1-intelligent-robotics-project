@@ -16,7 +16,7 @@ class ROBOT:
         self.chain.add_link_to_robot()
 
     def waypoint_plan(self, start_pos, target_pos, num_interpol, desired_vel): 
-        offset = [0.277, 0, 0] 
+        offset = [0.277, 0, 0]
         total_q_list = [] 
         interpoled_points = np.linspace(start=start_pos, stop=target_pos, num=num_interpol)
         for num in range(num_interpol):
@@ -26,6 +26,7 @@ class ROBOT:
                 q_list = self.chain.get_q_from_ik(variable) 
                 control_q_list = q_list[1:7] # Excluding base joint 
                 reshaped_q = control_q_list.reshape([6,])
+                reshaped_q[4] = 1.57
                 total_q_list.append(reshaped_q) # Get manipulator joints 
                 break 
             else: 
@@ -41,6 +42,7 @@ class ROBOT:
                 q_list = self.chain.get_q_from_ik(variable)
                 control_q_list = q_list[1:7] # Excluding base joint 
                 reshaped_q = control_q_list.reshape([6,])
+                reshaped_q[4] = 1.57
                 total_q_list.append(reshaped_q) # Get manipulator joints 
         desired_time = get_desired_time(start_pos, target_pos, desired_vel)
         interpoled_q = q_interpolation(total_q_list, desired_time, num_interpol)

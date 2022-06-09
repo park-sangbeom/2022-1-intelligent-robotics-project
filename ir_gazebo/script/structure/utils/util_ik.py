@@ -276,8 +276,13 @@ def decompose_rotation_matrix(R):
     return np.array([roll, pitch, yaw])
 
 def get_direction_offset(x,y):
-    offset_angle = math.atan2(y,x)
+    # x <-> y direction should be changed in World Coordinate
+    robot_base_offset = 0.
+    offset_angle = math.atan2(y, x-robot_base_offset)
+    if offset_angle>1.0:
+        print("[Error] Unavailable joints")
+        return None 
     return offset_angle
 
 def get_curr_wrist_pos(robot_jc):
-    return robot_jc[6].p
+    return robot_jc[6].p.reshape(-1,)

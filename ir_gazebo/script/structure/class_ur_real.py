@@ -27,7 +27,7 @@ class RealUR:
         self.JOINT_NAMES = ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint',
                             'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
         self.arm_pub     = rospy.Publisher('arm_controller/command', JointTrajectory, queue_size = 10)
-        self.up_offset   = [0, 0, 0.3]
+        self.up_offset   = [0, 0, 0.2]
 
     def move_arm(self, joints):
         try: 
@@ -48,7 +48,7 @@ class RealUR:
         except:
             raise
 
-    def initpose(self):
+    def init_pose(self):
         try: 
             q = [0.9, -0.6596, 1.3364, 0.0350, 0, 0]
             g = FollowJointTrajectoryGoal()
@@ -67,13 +67,28 @@ class RealUR:
         except:
             raise
 
-    def direction_set(self, direction_offset=0): 
-        joints = np.array([direction_offset, -1.57, 1.57, 0, 0, 0])
-        rev_joi = get_rev_joi_chain(self.robot.chain.joint, len(joints))
-        add_joints(self.chain.joint, rev_joi, joints)
-        self.robot.chain.fk_chain(1)
-        self.move_arm(joints)
-        start_wrist_pos = get_curr_wrist_pos(self.robot.chain.joint)
+    def start_pose(self):
+        try: 
+            q = [-3.35916187e-01, -9.90421628e-01,  2.12584599e+00, -1.13542436e+00, 1.23408381e+00, -1.59279665e-03]
+            g = FollowJointTrajectoryGoal()
+            g.trajectory = JointTrajectory()
+            g.trajectory.joint_names = self.JOINT_NAMES
+            joint_states = rospy.wait_for_message("joint_states", JointState)
+            joints_pos   = joint_states.position
+            g.trajectory.points = [
+                JointTrajectoryPoint(positions=joints_pos, velocities=[0]*6, time_from_start=rospy.Duration(0.0)),
+                JointTrajectoryPoint(positions=q, velocities=[0]*6, time_from_start=rospy.Duration(3))]  
+            self.client.send_goal(g)
+            self.client.wait_for_result()
+        except KeyboardInterrupt:
+            self.client.cancel_goal()
+            raise
+        except:
+            raise
+
+    def direction_set(self, direction_offset=0):   
+        print("direction offset", direction_offset)  
+        start_wrist_pos = [0.6*math.cos(direction_offset), 0.6*math.sin(direction_offset), 0.82]
         return start_wrist_pos
 
 
@@ -107,20 +122,23 @@ class RealUR:
             graspclient = ModbusTcpClient('192.168.0.110')
             slave = 65
             toolslave = 63
-            client = actionlib.SimpleActionClient('follow_joint_trajectory', FollowJointTrajectoryAction)
+            self.client = actionlib.SimpleActionClient('follow_joint_trajectory', FollowJointTrajectoryAction)
             print("Waiting for server...")
-            client.wait_for_server()
+            self.client.wait_for_server()
             print("Connected to server")
             print("Please make sure that your robot can move freely between these poses before proceeding!")
-            inp = input("Continue? y/n: ")[0]
+            # inp = input("Continue? y/n: ")[0]
+            inp = raw_input("Continue? y/n: ")
             if (inp == 'y'):
                 # Initialize 
-                self.initpose()
+                self.init_pose()
                 open_grasp(230, 1000, graspclient)
                 # Change direction to the target object
                 start_pos = self.direction_set(direction_offset)
+                print("Direction set done.")
                 # Get q list using linear interpolation plan 
                 q_list  = self.robot.waypoint_plan(start_pos, target_pos, num_interpol, desired_vel)
+                print("Linear move")
                 # Move UR5e 
                 self.real_move(q_list, num_interpol)
                 time.sleep(1)
@@ -133,7 +151,7 @@ class RealUR:
                 self.real_move(q_list_upward, num_interpol)
                 time.sleep(2)
                 # Initialize 
-                self.initpose()
+                self.init_pose()
                 # Open gripper to place the target object 
                 open_grasp(230, 1000, graspclient)
                 print("Finish plan")

@@ -23,7 +23,7 @@ def reset_tool(graspclient):
     toolslave = 63
     graspclient.write_register(0,2,unit=toolslave)
     time.sleep(3)
-    print("Reset Fininshed", end='\r')
+    print("Reset Fininshed")
 
 def close_grasp(force,width,graspclient):
     # If grasped, reset&openGrasp
