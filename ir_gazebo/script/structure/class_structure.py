@@ -167,7 +167,7 @@ class CHAIN:
 
     # Add joint to robot 
     def add_joi_to_robot(self):
-        # Other joints     
+        # Other joints      
         for idx, joint in enumerate(self.parser.joint): 
             if idx == 0: 
                 self.joint.append(JOINT(name=joint['name'], 
@@ -180,7 +180,19 @@ class CHAIN:
                                             R=np.eye(3), 
                                             R_offset=make_rotation(rad=joint['rpy']),
                                             type=joint['type']))     
-            else:             
+            elif idx>7:   
+                self.joint.append(JOINT(name=joint['name'], 
+                                            id=joint['id']+1, 
+                                            mother = self.parser.get_mother(joint['parent']), 
+                                            child=self.parser.get_child_joint_tree(joint["child"]), q=0, 
+                                            a=column(joint['axis']), 
+                                            b=column(joint['xyz']), 
+                                            p=column_v(0, 0, 0), 
+                                            R=np.eye(3), 
+                                            R_offset=make_rotation(rad=joint['rpy']),
+                                            type=joint['type']))    
+                
+            else: 
                 self.joint.append(JOINT(name=joint['name'], 
                                             id=joint['id'], 
                                             mother = self.parser.get_mother(joint['parent']), 
@@ -190,7 +202,22 @@ class CHAIN:
                                             p=column_v(0, 0, 0), 
                                             R=np.eye(3), 
                                             R_offset=make_rotation(rad=joint['rpy']),
-                                            type=joint['type']))    
+                                            type=joint['type'])) 
+
+        # Add tool center point joint (Only for UR5e & Onrobot rg2)
+        tcp_joint = JOINT(name='gripper_tcp_joint', 
+                            id=9, 
+                            mother=8, 
+                            child=[0], 
+                            q=0, 
+                            a=column_v(0, 0, 0),
+                            b=column_v(-0.00725, 0.0, 0.16),
+                            p=column_v(0, 0, 0), 
+                            R=np.eye(3),
+                            R_offset=make_rotation(rad='0 0 0'),
+                            type="fixed") 
+        self.joint.insert(8, tcp_joint) 
+                              
         """ Verbose Function """
         if self.verbose:
             for joi in self.joint: 
@@ -229,4 +256,5 @@ class CHAIN:
                     format(link.name.ljust(30), str(link.joint_id).ljust(2), link.joint_name.ljust(30), 
                            link.mesh_path, link.collision_type, str(link.radius).ljust(10), str(link.height).ljust(10), 
                            link.cap.p.T, link.cap.center_p))
+
 

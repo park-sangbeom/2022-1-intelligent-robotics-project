@@ -127,8 +127,8 @@ class RealUR:
             self.client.wait_for_server()
             print("Connected to server")
             print("Please make sure that your robot can move freely between these poses before proceeding!")
-            # inp = input("Continue? y/n: ")[0]
-            inp = raw_input("Continue? y/n: ")
+            inp = input("Continue? y/n: ")[0]
+            # inp = raw_input("Continue? y/n: ")
             if (inp == 'y'):
                 # Initialize 
                 self.init_pose()
