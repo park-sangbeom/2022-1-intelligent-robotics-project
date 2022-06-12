@@ -224,7 +224,7 @@
   <joint name="gripper_base_joint" type="fixed">
     <parent link="tool0"/>
     <child link="gripper_base_link"/>
-    <origin rpy="-1.57 0 0" xyz="0 0 0"/>   <!--<origin rpy="0 0 0" xyz="0 0 0"/> -->
+    <origin rpy="0 0 0" xyz="0 0. 0."/>   <!--<origin rpy="0 0 0" xyz="0 0 0"/> -->
     <axis xyz="0 1 0"/>
   </joint>
   <link name="gripper_base_link">
@@ -248,6 +248,19 @@
         <mesh filename="package://ir_gazebo/urdf/rg2/meshes/collision/gripper_base_link.STL"/>
       </geometry>
     </collision>
+  </link>
+  <joint name="gripper_tcp_joint" type="fixed">
+    <parent link="gripper_base_link"/>
+    <child link="gripper_tcp_link"/>
+    <origin rpy="0 0 0" xyz="-0.00725 0.11 0."/>  
+    <axis xyz="0 0 0"/>
+  </joint>
+  <link name="gripper_tcp_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.199035856566616"/>
+      <inertia ixx="0." ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
   </link>
   <link name="gripper_finger1_finger_link">
     <inertial>

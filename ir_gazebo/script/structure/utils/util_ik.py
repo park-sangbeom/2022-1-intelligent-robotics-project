@@ -277,7 +277,7 @@ def decompose_rotation_matrix(R):
 
 def get_direction_offset(x,y):
     # x <-> y direction should be changed in World Coordinate
-    robot_base_offset = 0.
+    robot_base_offset = 0.18
     offset_angle = math.atan2(y, x-robot_base_offset)
     if offset_angle>1.0:
         print("[Error] Unavailable joints")

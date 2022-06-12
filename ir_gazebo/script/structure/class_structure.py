@@ -179,19 +179,8 @@ class CHAIN:
                                             p=column_v(0.18, 0, 0.79), # Attached position offset from the world 
                                             R=np.eye(3), 
                                             R_offset=make_rotation(rad=joint['rpy']),
-                                            type=joint['type']))     
-            elif idx>7:   
-                self.joint.append(JOINT(name=joint['name'], 
-                                            id=joint['id']+1, 
-                                            mother = self.parser.get_mother(joint['parent']), 
-                                            child=self.parser.get_child_joint_tree(joint["child"]), q=0, 
-                                            a=column(joint['axis']), 
-                                            b=column(joint['xyz']), 
-                                            p=column_v(0, 0, 0), 
-                                            R=np.eye(3), 
-                                            R_offset=make_rotation(rad=joint['rpy']),
-                                            type=joint['type']))    
-                
+                                            type=joint['type']))          
+            
             else: 
                 self.joint.append(JOINT(name=joint['name'], 
                                             id=joint['id'], 
@@ -202,22 +191,9 @@ class CHAIN:
                                             p=column_v(0, 0, 0), 
                                             R=np.eye(3), 
                                             R_offset=make_rotation(rad=joint['rpy']),
-                                            type=joint['type'])) 
+                                            type=joint['type']))   
+                                             
 
-        # Add tool center point joint (Only for UR5e & Onrobot rg2)
-        tcp_joint = JOINT(name='gripper_tcp_joint', 
-                            id=9, 
-                            mother=8, 
-                            child=[0], 
-                            q=0, 
-                            a=column_v(0, 0, 0),
-                            b=column_v(-0.00725, 0.0, 0.16),
-                            p=column_v(0, 0, 0), 
-                            R=np.eye(3),
-                            R_offset=make_rotation(rad='0 0 0'),
-                            type="fixed") 
-        self.joint.insert(8, tcp_joint) 
-                              
         """ Verbose Function """
         if self.verbose:
             for joi in self.joint: 

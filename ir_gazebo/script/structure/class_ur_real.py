@@ -88,8 +88,8 @@ class RealUR:
 
     def direction_set(self, direction_offset=0):   
         print("direction offset", direction_offset)  
-        start_wrist_pos = [0.6*math.cos(direction_offset), 0.6*math.sin(direction_offset), 0.82]
-        return start_wrist_pos
+        start_tcp_pos = [(0.8-0.18)*math.cos(direction_offset), 0.6*math.sin(direction_offset), 0.82]
+        return start_tcp_pos
 
 
     def real_move(self, joint_list, num_interpol):
@@ -137,7 +137,7 @@ class RealUR:
                 start_pos = self.direction_set(direction_offset)
                 print("Direction set done.")
                 # Get q list using linear interpolation plan 
-                q_list  = self.robot.waypoint_plan(start_pos, target_pos, num_interpol, desired_vel)
+                q_list  = self.robot.waypoint_plan(start_pos, target_pos, num_interpol, desired_vel, direction_offset)
                 print("Linear move")
                 # Move UR5e 
                 self.real_move(q_list, num_interpol)
