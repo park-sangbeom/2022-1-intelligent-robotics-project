@@ -137,7 +137,7 @@ class RealUR:
                 close_grasp(230, 700, graspclient)
                 # Get q list to move upward 
                 start_pos2 = get_curr_wrist_pos(self.robot.chain.joint)
-                q_list_upward  = self.robot.linear_move(start_pos2, start_pos2+self.up_offset, num_interpol, desired_vel)
+                q_list_upward  = self.robot.linear_move(start_pos2, start_pos2+self.up_offset, desired_vel, direction_offset)
                 # Move UR5e 
                 self.real_move(q_list_upward, num_interpol)
                 time.sleep(2)
