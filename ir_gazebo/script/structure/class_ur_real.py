@@ -86,12 +86,6 @@ class RealUR:
         except:
             raise
 
-    def direction_set(self, direction_offset=0):   
-        print("direction offset", direction_offset)  
-        start_tcp_pos = [(0.8-0.18)*math.cos(direction_offset), 0.6*math.sin(direction_offset), 0.82]
-        return start_tcp_pos
-
-
     def real_move(self, joint_list, num_interpol):
         g = FollowJointTrajectoryGoal()
         g.trajectory = JointTrajectory()
@@ -133,12 +127,9 @@ class RealUR:
                 # Initialize 
                 self.init_pose()
                 open_grasp(230, 1000, graspclient)
-                # Change direction to the target object
-                start_pos = self.direction_set(direction_offset)
-                print("Direction set done.")
+                start_pos = [0.77, 0, 0.84]
                 # Get q list using linear interpolation plan 
-                q_list  = self.robot.waypoint_plan(start_pos, target_pos, num_interpol, desired_vel, direction_offset)
-                print("Linear move")
+                q_list = self.robot.linear_move(start_pos, target_pos, desired_vel, direction_offset)
                 # Move UR5e 
                 self.real_move(q_list, num_interpol)
                 time.sleep(1)
@@ -146,7 +137,7 @@ class RealUR:
                 close_grasp(230, 700, graspclient)
                 # Get q list to move upward 
                 start_pos2 = get_curr_wrist_pos(self.robot.chain.joint)
-                q_list_upward  = self.robot.waypoint_plan(start_pos2, start_pos2+self.up_offset, num_interpol, desired_vel)
+                q_list_upward  = self.robot.linear_move(start_pos2, start_pos2+self.up_offset, num_interpol, desired_vel)
                 # Move UR5e 
                 self.real_move(q_list_upward, num_interpol)
                 time.sleep(2)
