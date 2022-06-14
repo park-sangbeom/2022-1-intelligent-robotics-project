@@ -99,11 +99,11 @@ class RealUR:
                     JointTrajectoryPoint(positions=q, velocities=[0]*6, time_from_start=rospy.Duration(3))]  
                 d=3
             else:
-                vel = (q-prev_q)/num_interpol # TODO: CHECK VELOCITY
+                vel = (q-prev_q) #num_interpol # TODO: CHECK VELOCITY
                 g.trajectory.points.append(
                     JointTrajectoryPoint(positions=q, velocities=vel,time_from_start=rospy.Duration(d))) 
             prev_q = q
-            d+=0.002 
+            d+=0.002
         try:
             print("MOVE")
             self.client.send_goal(g)
@@ -127,23 +127,23 @@ class RealUR:
                 # Initialize 
                 self.init_pose()
                 open_grasp(230, 1000, graspclient)
-                start_pos = [0.77, 0, 0.84]
+                start_pos = [0.74, 0, 0.84]
                 # Get q list using linear interpolation plan 
-                q_list = self.robot.linear_move(start_pos, target_pos, desired_vel, direction_offset)
+                q_list = self.robot.linear_move(start_pos, target_pos, desired_vel, direction_offset, num_interpol)
                 # Move UR5e 
                 self.real_move(q_list, num_interpol)
                 time.sleep(1)
                 # Close gripper to grasp the target object
                 close_grasp(230, 700, graspclient)
-                # Get q list to move upward 
+                # # Get q list to move upward 
                 start_pos2 = get_curr_wrist_pos(self.robot.chain.joint)
-                q_list_upward  = self.robot.linear_move(start_pos2, start_pos2+self.up_offset, desired_vel, direction_offset)
-                # Move UR5e 
+                q_list_upward  = self.robot.linear_move(start_pos2, start_pos2+self.up_offset, desired_vel, direction_offset, num_interpol)
+                # # Move UR5e 
                 self.real_move(q_list_upward, num_interpol)
                 time.sleep(2)
-                # Initialize 
+                # # Initialize 
                 self.init_pose()
-                # Open gripper to place the target object 
+                # # Open gripper to place the target object 
                 open_grasp(230, 1000, graspclient)
                 print("Finish plan")
             else:

@@ -286,4 +286,4 @@ def get_direction_offset(x,y):
     return offset_angle
 
 def get_curr_wrist_pos(robot_jc):
-    return robot_jc[6].p.reshape(-1,)
+    return robot_jc[9].p.reshape(-1,)
