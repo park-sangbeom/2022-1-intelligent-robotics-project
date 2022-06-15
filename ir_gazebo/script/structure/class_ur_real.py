@@ -69,7 +69,7 @@ class RealUR:
 
     def start_pose(self):
         try: 
-            q = [-3.35916187e-01, -9.90421628e-01,  2.12584599e+00, -1.13542436e+00, 1.23408381e+00, -1.59279665e-03]
+            q = [-3.35916187e-01, -13.90421628e-01,  2.52584599e+00, -1.13542436e+00, 1.23408381e+00, -1.59279665e-03]
             g = FollowJointTrajectoryGoal()
             g.trajectory = JointTrajectory()
             g.trajectory.joint_names = self.JOINT_NAMES
@@ -127,7 +127,8 @@ class RealUR:
                 # Initialize 
                 self.init_pose()
                 open_grasp(230, 1000, graspclient)
-                start_pos = [0.74, 0, 0.84]
+                self.start_pose
+                start_pos = [0.71, 0, 0.82]
                 # Get q list using linear interpolation plan 
                 q_list = self.robot.linear_move(start_pos, target_pos, desired_vel, direction_offset, num_interpol)
                 # Move UR5e 

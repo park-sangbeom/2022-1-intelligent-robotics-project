@@ -14,6 +14,8 @@ class ROBOT:
         self.fcl    = PyFCL(_verbose=False)
         self.chain.add_joi_to_robot()
         self.chain.add_link_to_robot()
+        self.joint_limit_max = [1.1, 0.1, 3]
+        self.joint_limit_min = [-1.1, -1.57, -1.57]
 
     def linear_move(self, start_pos, target_pos, desired_vel, offset_angle, num_interpol):
         freq = 500
@@ -47,6 +49,16 @@ class ROBOT:
         ctrl_q_list_goal = q_list_goal.reshape(-1,)        
         desired_time = get_desired_time(start_pos, target_pos, desired_vel)
         interpoled_q = np.linspace(start=ctrl_q_list_start, stop=ctrl_q_list_goal, num=int(freq*desired_time)*num_interpol)
-        return interpoled_q
+        secured_q    = self.joint_limit(interpoled_q)
+        return secured_q
 
-   
+    def joint_limit(self, joint_list):
+        for joint_seq in joint_list: 
+            if np.any(joint_seq[:3] > self.joint_limit_max):
+                print("ERROR: Out of range")
+                return None    
+            if np.any(joint_seq[:3]< self.joint_limit_min):
+                print("ERROR: Out of range")
+                return None                    
+        return joint_list 
+        
