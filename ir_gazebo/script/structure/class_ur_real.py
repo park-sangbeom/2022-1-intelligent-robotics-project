@@ -27,7 +27,7 @@ class RealUR:
         self.JOINT_NAMES = ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint',
                             'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
         self.arm_pub     = rospy.Publisher('arm_controller/command', JointTrajectory, queue_size = 10)
-        self.up_offset   = [0, 0, 0.2]
+        self.up_offset   = np.array([0, 0, 0.25])
 
     def move_arm(self, joints):
         try: 
@@ -120,35 +120,36 @@ class RealUR:
             print("Waiting for server...")
             self.client.wait_for_server()
             print("Connected to server")
-            print("Please make sure that your robot can move freely between these poses before proceeding!")
-            inp = input("Continue? y/n: ")[0]
-            # inp = raw_input("Continue? y/n: ")
-            if (inp == 'y'):
-                # Initialize 
-                self.init_pose()
-                open_grasp(230, 1000, graspclient)
-                self.start_pose
-                start_pos = [0.71, 0, 0.82]
-                # Get q list using linear interpolation plan 
-                q_list = self.robot.linear_move(start_pos, target_pos, desired_vel, direction_offset, num_interpol)
-                # Move UR5e 
-                self.real_move(q_list, num_interpol)
-                time.sleep(1)
-                # Close gripper to grasp the target object
-                close_grasp(230, 700, graspclient)
-                # # Get q list to move upward 
-                start_pos2 = get_curr_wrist_pos(self.robot.chain.joint)
-                q_list_upward  = self.robot.linear_move(start_pos2, start_pos2+self.up_offset, desired_vel, direction_offset, num_interpol)
-                # # Move UR5e 
-                self.real_move(q_list_upward, num_interpol)
-                time.sleep(2)
-                # # Initialize 
-                self.init_pose()
-                # # Open gripper to place the target object 
-                open_grasp(230, 1000, graspclient)
-                print("Finish plan")
-            else:
-                print("Halting program")
+            """ Initialize """
+            self.init_pose()
+            open_grasp(230, 1000, graspclient)
+            """ Ready to start """
+            self.start_pose
+            start_pos = [0.71, 0, 0.83]
+            # Get q list using linear interpolation plan 
+            q_list = self.robot.linear_move(start_pos, target_pos, desired_vel, direction_offset, num_interpol, "forward")
+            """ Linear move """
+            # Move UR5e 
+            self.real_move(q_list, num_interpol)
+            time.sleep(1)
+            # Close gripper to grasp the target object
+            close_grasp(250, 700, graspclient)
+            """ Move to upward """
+            # Get q list to move upward 
+            start_pos2 = get_curr_wrist_pos(self.robot.chain.joint)
+            q_list_upward  = self.robot.linear_move(start_pos2, start_pos2+self.up_offset, desired_vel, direction_offset, num_interpol, "upward")
+            # Move UR5e 
+            self.real_move(q_list_upward, num_interpol)
+            time.sleep(1)
+            """ Back to initialize pose """
+            # Initialize 
+            self.init_pose()
+            time.sleep(1)
+            # Open gripper to place the target object 
+            open_grasp(250, 1000, graspclient)
+            time.sleep(1)
+            print("Finish plan")
+
         except KeyboardInterrupt:
             rospy.signal_shutdown("KeyboardInterrupt")
             raise
